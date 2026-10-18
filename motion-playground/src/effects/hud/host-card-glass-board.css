@@ -1,0 +1,51 @@
+/* 原片继续驱动播放/声音，但场景接管期间不参与合成，避免缩放裁切边缘混入原片。 */
+.stage[data-host-board-scene="1"]:has(.hcg[data-host-ready="1"][data-host-active="1"]) > .stage-video { visibility: hidden; }
+/* 隔离原作的全局 * 规则：只影响本卡，不改编辑台和其他卡片。 */
+.hcg, .hcg * { box-sizing: border-box; }
+.hcg { position: absolute; inset: 0; pointer-events: none;
+  font-family: var(--hud-font, "PingFang SC", "Microsoft YaHei", sans-serif);
+  --hcg-ink: #fff; --hcg-muted: rgba(255,255,255,.62); --hcg-line: rgba(255,255,255,.3);
+  --hcg-surface: linear-gradient(135deg, rgba(54,57,77,.96), rgba(26,29,43,.87) 45%, rgba(45,48,65,.94));
+  --hcg-tile: rgba(255,255,255,.08); color: var(--hcg-ink); }
+.hcg[data-hcg-theme="light"] { --hcg-ink: #243047; --hcg-muted: #647089;
+  --hcg-line: #dce2ec; --hcg-surface: #fff; --hcg-tile: color-mix(in srgb, var(--hcg-accent) 14%, white); }
+.hcg-content, .hcg-host-motion { position: absolute; inset: 0; transform-origin: center; }
+/* 背景外扩后由 stage 裁切，避免非整数预览缩放时边缘抗锯齿漏出底层视频。 */
+.hcg-studio { position: absolute; inset: -4px; background: radial-gradient(ellipse at 30% 20%, #292238, #12131a 75%); }
+.hcg[data-hcg-theme="light"] .hcg-studio { background: #f3f5f9; }
+.hcg-host { pointer-events: auto; position: absolute; width: 250px; height: 444px; border-radius: 22px; overflow: hidden;
+  transform-origin: left top; border: 2px solid rgba(255,255,255,.42);
+  box-shadow: 0 20px 60px rgba(0,0,0,.3); background: radial-gradient(ellipse at 50% 20%, #6b407e, transparent 60%), linear-gradient(#3a2a58, #1d2140 55%, #12131a); }
+.hcg-silhouette { position: absolute; inset: 0 -25%; background: radial-gradient(ellipse 46% 26% at 50% 13%, #c3c5ce 60%, transparent 61%), radial-gradient(ellipse 50% 62% at 50% 84%, #c3c5ce 60%, transparent 61%); }
+.hcg-perspective { position: absolute; inset: 0; perspective-origin: 30% 50%; }
+.hcg-board { pointer-events: auto; position: absolute; width: 570px; height: 408px; border-radius: 18px; overflow: hidden;
+  transform-origin: left top; background: var(--hcg-surface); border: 1.5px solid var(--hcg-line);
+  box-shadow: 0 30px 60px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.25); }
+.hcg[data-hcg-theme="light"] .hcg-board { border-width: 1px; box-shadow: 0 18px 45px rgba(34,48,75,.13); }
+.hcg[data-hcg-theme="light"] .hcg-host { border: 1px solid var(--hcg-line); box-shadow: none; }
+.hcg[data-hcg-theme="light"] .hcg-tile { box-shadow: none; }
+.hcg[data-hcg-theme="light"] .hcg-icon { background: transparent; color: var(--hcg-accent); }
+.hcg-sheen { position: absolute; top: -40%; bottom: -40%; left: -220px; width: 160px;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,.14), transparent); }
+.hcg-tag, .hcg-en { position: absolute; left: 28px; right: 28px; text-align: center; color: var(--hcg-muted);
+  font-family: "SF Mono", Menlo, monospace; letter-spacing: 2px; white-space: nowrap; overflow: hidden; }
+.hcg-tag { top: 18px; }
+.hcg-title { position: absolute; left: 28px; right: 28px; top: 42px; height: 58px; display: flex; align-items: center;
+  justify-content: center; font-weight: 800; letter-spacing: 2px; white-space: nowrap; }
+.hcg-title span { display: inline-block; }
+.hcg-en { top: 110px; }
+.hcg-tiles { position: absolute; top: 170px; height: 130px; }
+.hcg-tile { position: absolute; top: 0; height: 130px; border-radius: 14px; background: var(--hcg-tile);
+  border: 1px solid var(--hcg-line); box-shadow: inset 0 1px 0 rgba(255,255,255,.15), 0 10px 30px rgba(0,0,0,.18);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+.hcg-icon { width: 44px; height: 44px; border-radius: 50%; background: var(--hcg-accent); color: #12131a;
+  font-size: 22px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
+.hcg-icon img { width: 32px; height: 32px; object-fit: contain; }
+.hcg-label { max-width: calc(100% - 16px); text-align: center; font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; }
+.hcg-sub { max-width: calc(100% - 12px); text-align: center; color: var(--hcg-muted); font-family: "SF Mono", Menlo, monospace; overflow-wrap: anywhere; }
+.hcg-connector { position: absolute; top: 63px; height: 4px; color: var(--hcg-accent); }
+.hcg-connector i { position: absolute; left: 0; top: 1px; width: 100%; height: 2px; background: currentColor; transform-origin: left center; }
+.hcg-connector b { position: absolute; right: 1px; top: -3px; width: 10px; height: 10px; border-top: 2px solid; border-right: 2px solid; transform: rotate(45deg); }
+.hcg-result { position: absolute; left: 50%; top: 328px; max-width: 514px; padding: 8px 22px;
+  border-radius: 999px; background: color-mix(in srgb, var(--hcg-accent) 16%, transparent);
+  border: 1px solid var(--hcg-accent); color: var(--hcg-ink); font-weight: 700; text-align: center; overflow-wrap: anywhere; }
